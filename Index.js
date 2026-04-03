@@ -1,28 +1,41 @@
 require("dotenv").config()
+var cors = require("cors")
 
 var express = require("express")
 
-var useRoutes = require("./Routes/UserRoutes.js")
-var productRoutes = require("./Routes/ProductRoutes.js")
-const connectToDatabase = require("./DataBase/db.js")
+var userRoutes = require("./Routes/UserRoutes")
+var productRoutes = require("./Routes/ProductRoutes")
+var profileRoutes = require("./Routes/profileRoutes")
+
+var cartRoutes = require("./Routes/cartRoutes.js")
+var connectedToDatabase=require("./database/db.js")
+
 
 var app = express()
 
 
 app.use(express.json())
+app.use(cors())
 
-app.use("/api/userRoutes",useRoutes)
+app.use("/", userRoutes)
 
-app.use("/api/productRoutes",productRoutes)
+app.use("/", productRoutes)
+
+app.use("/", profileRoutes)
+
+app.use("/", cartRoutes)
 
 
 
 
-connectToDatabase()
+
+
+connectedToDatabase()
+
 
 
 var port = process.env.PORT
 
-app.listen(port,()=>{
+app.listen(port, () => {
     console.log("The server is running");
 })

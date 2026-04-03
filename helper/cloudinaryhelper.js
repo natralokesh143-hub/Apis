@@ -17,16 +17,6 @@ async function uploadToCloudinary(filepath) {
     }
 }
 
-async function deleteFromCloudinary(publicId) {
-    try {
-        await cloudinary.uploader.destroy(publicId);
-    } catch (error) {
-        console.error("Cloudinary Delete Error:", error);
-        throw new Error("Image delete failed");
-    }
-}
-
 module.exports = {
-    uploadToCloudinary,
-    deleteFromCloudinary
+    uploadToCloudinary
 };
