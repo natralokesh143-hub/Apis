@@ -13,8 +13,7 @@ var getAllProducts = async(req,res)=>{
         res.status(200).json({products: allProducts})
 
     }catch(error){
-        console.error("error",error);
-        res.status(500).json({message: "Internal server error", error: error.message})
+        console.log("error",error);
     }
 }
 
@@ -26,8 +25,7 @@ var getSingleProduct = async(req,res)=>{
         res.status(200).json({singleProduct})
 
     }catch(error){
-        console.error("error",error);
-        res.status(500).json({message: "Internal server error", error: error.message})
+        console.log("error",error);
     }
 }
 
@@ -51,8 +49,7 @@ var addNewProduct = async(req,res)=>{
     })
     res.status(201).json({message : "productadded",product : newProduct})
     }catch(error){
-        console.error("error",error);
-        res.status(500).json({message: "Internal server error", error: error.message})
+        console.log("error",error);
     }
 }
 
@@ -71,8 +68,7 @@ var updateProduct = async(req,res)=>{
         res.status(201).json({message : "product updated",data : update})
 
     }catch(error){
-        console.error("error",error);
-        res.status(500).json({message: "Internal server error", error: error.message})
+        console.log("error",error);
     }
 }
 
@@ -83,8 +79,7 @@ var deleteProduct = async(req,res)=>{
         res.status(200).json({message : "product deleted"})
 
     }catch(error){
-        console.error("error",error);
-        res.status(500).json({message: "Internal server error", error: error.message})
+        console.log("error",error);
     }
 }
 module.exports = {

@@ -5,7 +5,7 @@ var bycrpt = require("bcrypt")
 
 var getProfile = async(req,res)=>{
     try{
-        var userId = req.params.id 
+        var userId = req.user.userId
         if(!userId){
             return res.status(403).json({message : "no user found"})
         }
@@ -14,14 +14,13 @@ var getProfile = async(req,res)=>{
 
         
     }catch(error){
-        console.error("error",error);
-        res.status(500).json({message: "Internal server error", error: error.message})
+        console.log("error",error);
     }
 }
 
 var updateProfile = async(req,res)=>{
     try{
-        var userId = req.params.id 
+        var userId = req.user.userId
         if(!userId){
             return res.status(200).json({message : "no user id"})
         }
@@ -42,8 +41,7 @@ var updateProfile = async(req,res)=>{
 
 
     }catch(error){
-        console.error("error",error);
-        res.status(500).json({message: "Internal server error", error: error.message})
+        console.log("error",error);
     }
 }
 

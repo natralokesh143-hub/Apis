@@ -1,14 +1,14 @@
 var express = require("express")
-const { register, login } = require("../Controller/UserController")
+const { registerUser, login } = require("../Controller/userController")
 
 
 var router = express.Router()
 
 
-router.post("/register",register)
+router.post("/register",registerUser)
 
 router.post("/login",login)
 
 
-module.exports = router
+module.exports = router 
 

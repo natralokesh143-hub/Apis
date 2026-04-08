@@ -7,7 +7,8 @@ var jwt = require("jsonwebtoken")
 
 
 
-var register = async(req,res)=>{
+
+var registerUser = async(req,res)=>{
     try{
         var {name,email,password} = req.body
         var userExists = await User.findOne({email})
@@ -27,10 +28,10 @@ var register = async(req,res)=>{
         
 
     }catch(error){
-        console.error("error",error);
-        res.status(500).json({message: "Internal server error", error: error.message})
+        console.log("error",error);
     }
 }
+
 
 
 var login = async(req,res)=>{
@@ -61,11 +62,10 @@ var login = async(req,res)=>{
 
         
     }catch(error){
-        console.error("error",error);
-        res.status(500).json({message: "Internal server error", error: error.message})
+        console.log("error",error);
     }
 }
 
 module.exports = {
-    register,login
+    registerUser,login
 }
