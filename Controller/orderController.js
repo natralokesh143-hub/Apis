@@ -4,25 +4,26 @@ var Order = require("../Model/orderModel")
 
 var getAllOrders = async(req,res)=>{
     try{
-        var userId = req.user.id 
-        var allOrders = await find({userId}).sort({ createdAt: -1 });
-        res.status(200).json({
+        var userId = req.user.userId
+        var orders = await Order.find({ userId }).sort({ createdAt: -1 })
+        return res.status(200).json({
             message: "User orders fetched successfully",
             orders,
-          });
+        })
 
 
 
 
     }catch(error){
         console.log("error",error);
+        return res.status(500).json({ message: "failed to fetch orders", error: error.message })
     }
 }
 
 
 var getSingleOrder = async(req,res)=>{
     try{
-        var userId = req.user.id 
+        var userId = req.user.userId
         var orderId = req.params.id 
         var order = await Order.findOne({
             _id: orderId,
@@ -43,6 +44,7 @@ var getSingleOrder = async(req,res)=>{
 
     }catch(error){
         console.log("error",error);
+        return res.status(500).json({ message: "failed to fetch order", error: error.message })
     }
 }
 

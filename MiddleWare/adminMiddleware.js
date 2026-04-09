@@ -9,6 +9,7 @@ var adminMiddleware = async(req,res,next)=>{
         next()
     }catch(error){
         console.log("error",error);
+        return res.status(500).json({ message: "admin middleware failed", error: error.message })
     }
 }
 

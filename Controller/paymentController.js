@@ -3,10 +3,6 @@ var Product = require("../Model/ProductModel")
 var razorpay = require("../config/razorpay")
 var mongoose = require("mongoose")
 
-var Cart = require("../Model/cartModel")
-var Product = require("../Model/ProductModel")
-var razorpay = require("../config/razorpay")
-
 var checkout = async (req, res) => {
     try {
         var userId = req.user.userId
@@ -14,7 +10,7 @@ var checkout = async (req, res) => {
         // =========================
         // 1. Get Cart
         // =========================
-        var cart = await Cart.findOne({ userId })
+        var cart = await Cart.findOne({ user: userId })
 
         if (!cart || !cart.items || cart.items.length === 0) {
             return res.status(400).json({ message: "cart empty" })
@@ -25,7 +21,15 @@ var checkout = async (req, res) => {
         // =========================
         // 2. Get All Products (Optimized)
         // =========================
-        var productIds = cart.items.map(item => item.product)
+        var productIds = cart.items
+            .map(item => item.product)
+            .filter(id => mongoose.Types.ObjectId.isValid(id))
+
+        if (productIds.length === 0) {
+            return res.status(400).json({
+                message: "cart has invalid productId(s); please clear cart and add valid products"
+            })
+        }
 
         var products = await Product.find({
             _id: { $in: productIds }
@@ -35,17 +39,26 @@ var checkout = async (req, res) => {
         // 3. Calculate Total
         // =========================
         var totalAmount = 0
+        var productById = new Map(products.map(p => [p._id.toString(), p]))
+        var missingProductIds = []
 
         for (let item of cart.items) {
-            var product = products.find(
-                p => p._id.toString() === item.product.toString()
-            )
-
-            if (!product) {
-                return res.status(400).json({ message: "product not found" })
+            if (!mongoose.Types.ObjectId.isValid(item.product)) {
+                continue
             }
-
+            var product = productById.get(item.product.toString())
+            if (!product) {
+                missingProductIds.push(item.product.toString())
+                continue
+            }
             totalAmount += product.price * item.quantity
+        }
+
+        if (missingProductIds.length > 0) {
+            return res.status(400).json({
+                message: "some cart products no longer exist; remove them from cart",
+                missingProductIds
+            })
         }
 
         console.log("Total Amount:", totalAmount)

@@ -10,7 +10,13 @@ var jwt = require("jsonwebtoken")
 
 var registerUser = async(req,res)=>{
     try{
-        var {name,email,password} = req.body
+        var {name,email,password} = req.body || {}
+        if (!name || !email || !password) {
+            return res.status(400).json({
+                message: "name, email, and password are required",
+                hint: "Postman: Body → raw → JSON (or x-www-form-urlencoded with those field names)"
+            })
+        }
         var userExists = await User.findOne({email})
         if(userExists){
             return res.status(200).json({message : "user exists"})
@@ -29,6 +35,7 @@ var registerUser = async(req,res)=>{
 
     }catch(error){
         console.log("error",error);
+        return res.status(500).json({ message: "registration failed", error: error.message })
     }
 }
 
@@ -37,7 +44,13 @@ var registerUser = async(req,res)=>{
 var login = async(req,res)=>{
     try{
         
-        var {email,password} = req.body
+        var {email,password} = req.body || {}
+        if (!email || !password) {
+            return res.status(400).json({
+                message: "email and password are required",
+                hint: "Postman: Body → raw → JSON (or x-www-form-urlencoded)"
+            })
+        }
         
         var userExists = await User.findOne({email})
         if(!userExists){
@@ -63,6 +76,7 @@ var login = async(req,res)=>{
         
     }catch(error){
         console.log("error",error);
+        return res.status(500).json({ message: "login failed", error: error.message })
     }
 }
 

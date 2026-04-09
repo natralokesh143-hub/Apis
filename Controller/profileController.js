@@ -10,11 +10,12 @@ var getProfile = async(req,res)=>{
             return res.status(403).json({message : "no user found"})
         }
         var user = await User.findById(userId).select("-password")
-        res.status(200).json({user})
+        return res.status(200).json({user})
 
         
     }catch(error){
         console.log("error",error);
+        return res.status(500).json({ message: "failed to fetch profile", error: error.message })
     }
 }
 
@@ -22,7 +23,7 @@ var updateProfile = async(req,res)=>{
     try{
         var userId = req.user.userId
         if(!userId){
-            return res.status(200).json({message : "no user id"})
+            return res.status(403).json({message : "no user found"})
         }
         var {name,email,password} = req.body 
         var updatedUser = {}
@@ -37,11 +38,12 @@ var updateProfile = async(req,res)=>{
             updatedUser.password = hashedPassword
         }
         var updateUserdata = await User.findByIdAndUpdate(userId,updatedUser,{new : true})
-        res.status(201).json({updateUserdata})
+        return res.status(201).json({updateUserdata})
 
 
     }catch(error){
         console.log("error",error);
+        return res.status(500).json({ message: "failed to update profile", error: error.message })
     }
 }
 

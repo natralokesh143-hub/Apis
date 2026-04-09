@@ -1,6 +1,6 @@
 var express = require("express")
 
-var authMiddleware = require("../Middleware/authMiddleware")
+var authMiddleware = require("../MiddleWare/authMiddleware")
 var { checkout } = require("../Controller/paymentController")
 var { verifyPayment } = require("../Controller/verifyPaymentController")
 

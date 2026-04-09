@@ -2,7 +2,7 @@ var mongoose = require("mongoose")
 
 
 var cartSchema = new mongoose.Schema({
-    userId : {
+    user : {
         type : String 
     },
     items : [

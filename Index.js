@@ -2,8 +2,8 @@ require("dotenv").config()
 var cors = require("cors")
 
 var express = require("express")
-const connectToDatabase = require("./database/db.js")
-var useRoutes = require("./Routes/userRoutes")
+const connectToDatabase = require("./DataBase/db.js")
+var userRoutes = require("./Routes/UserRoutes.js")
 var productRoutes = require("./Routes/ProductRoutes.js")
 var profileRoutes = require("./Routes/profileRoutes.js")
 var cartRoutes = require("./Routes/cartRoutes.js")
@@ -16,26 +16,35 @@ var app = express()
 
 app.use(cors())
 app.use(express.json())
+app.use(express.urlencoded({ extended: true }))
+
+app.get("/health", (req, res) => {
+    res.status(200).json({ ok: true })
+})
 
 
-app.use("/api/",useRoutes)
+app.use("/", userRoutes)
 
-app.use("/api/",productRoutes)
+app.use("/",productRoutes)
 
-app.use("/api/",profileRoutes)
+app.use("/",profileRoutes)
 
-app.use("/api/",cartRoutes)
+app.use("/",cartRoutes)
 
-app.use("/api/",paymentRoutes)
+app.use("/",paymentRoutes)
 
-app.use("/api/",orderRoutes)
+app.use("/",orderRoutes)
 
+
+var port = process.env.PORT || 5000
 
 connectToDatabase()
-
-
-var port = process.env.PORT
-
-app.listen(port,()=>{
-    console.log("The server is running");
-})
+    .then(() => {
+        app.listen(port, () => {
+            console.log("The server is running on port", port)
+        })
+    })
+    .catch((err) => {
+        console.error("Database connection failed:", err.message)
+        process.exit(1)
+    })

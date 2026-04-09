@@ -1,4 +1,5 @@
 var Cart = require("../Model/cartModel")
+var Product = require("../Model/ProductModel")
 
 // ===================
 // GET CART
@@ -7,7 +8,7 @@ var Cart = require("../Model/cartModel")
 var getCart = async (req, res) => {
     try {
         var userId = req.user.userId
-        var cart = await Cart.findOne({ userId })
+        var cart = await Cart.findOne({ user: userId })
 
         res.status(200).json({ cart })
 
@@ -24,14 +25,31 @@ var getCart = async (req, res) => {
 var addToCart = async (req, res) => {
     try {
         var userId = req.user.userId
-        var { productId } = req.body
+        var { productId } = req.body || {}
+        if (!productId) {
+            return res.status(400).json({
+                message: "productId is required",
+                example: { productId: "PRODUCT_ID_HERE" }
+            })
+        }
+        if (!require("mongoose").Types.ObjectId.isValid(productId)) {
+            return res.status(400).json({
+                message: "invalid productId",
+                example: { productId: "69d73d815a0cd29f92e8d575" }
+            })
+        }
 
-        var cart = await Cart.findOne({ userId })
+        var exists = await Product.findById(productId).select("_id")
+        if (!exists) {
+            return res.status(404).json({ message: "product not found" })
+        }
+
+        var cart = await Cart.findOne({ user: userId })
 
         // 🟢 If cart does not exist → create & return
         if (!cart) {
             cart = await Cart.create({
-                userId,
+                user: userId,
                 items: [
                     {
                         product: productId,
@@ -69,7 +87,7 @@ var addToCart = async (req, res) => {
 
     } catch (error) {
         console.log("error", error)
-        res.status(500).json({ error: "server error" })
+        return res.status(500).json({ error: "server error", details: error.message })
     }
 }
 

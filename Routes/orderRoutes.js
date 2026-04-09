@@ -1,6 +1,6 @@
 var express = require("express")
 const { getAllOrders, getSingleOrder } = require("../Controller/orderController")
-const authMiddleware = require("../Middleware/authMiddleware")
+const authMiddleware = require("../MiddleWare/authMiddleware")
 
 
 var router =  express.Router()
