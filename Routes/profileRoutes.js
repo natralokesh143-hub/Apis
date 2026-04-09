@@ -5,9 +5,9 @@ const authMiddleware = require("../MiddleWare/authMiddleware")
 var router = express.Router()
 
 
-router.get("/profile/:id", authMiddleware, getProfile)
+router.get("/profile", authMiddleware, getProfile)
 
-router.put("/updateprofile/:id", authMiddleware, updateProfile)
+router.put("/updateprofile", authMiddleware, updateProfile)
 
 
 module.exports = router 
