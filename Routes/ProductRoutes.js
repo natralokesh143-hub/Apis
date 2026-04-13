@@ -5,7 +5,10 @@ const {
   getSingleProduct,
   addNewProduct,
   updateProduct,
-  deleteProduct
+  deleteProduct,
+  getProductReviews,
+  addOrUpdateReview,
+  deleteReview
 } = require("../Controller/ProductController");
 
 const authMiddleware = require("../MiddleWare/authMiddleware");
@@ -27,6 +30,27 @@ router.get("/products", authMiddleware, getAllProducts);
  * @access  Private (Admin)
  */
 router.get("/products/:id", authMiddleware, getSingleProduct);
+
+/**
+ * @route   GET /products/:id/reviews
+ * @desc    Get product reviews + rating summary
+ * @access  Private
+ */
+router.get("/products/:id/reviews", authMiddleware, getProductReviews);
+
+/**
+ * @route   POST /products/:id/reviews
+ * @desc    Add or update logged-in user's review
+ * @access  Private
+ */
+router.post("/products/:id/reviews", authMiddleware, addOrUpdateReview);
+
+/**
+ * @route   DELETE /products/:id/reviews/:reviewId
+ * @desc    Delete a review (owner or admin)
+ * @access  Private
+ */
+router.delete("/products/:id/reviews/:reviewId", authMiddleware, deleteReview);
 
 /**
  * @route   POST /products

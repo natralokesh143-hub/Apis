@@ -9,6 +9,7 @@ var profileRoutes = require("./Routes/profileRoutes.js")
 var cartRoutes = require("./Routes/cartRoutes.js")
 var paymentRoutes = require("./Routes/paymentRoutes.js")
 var orderRoutes = require("./Routes/orderRoutes.js")
+var wishlistRoutes = require("./Routes/wishlistRoutes.js")
 
 
 
@@ -30,6 +31,8 @@ app.use("/",productRoutes)
 app.use("/",profileRoutes)
 
 app.use("/",cartRoutes)
+
+app.use("/",wishlistRoutes)
 
 app.use("/",paymentRoutes)
 
