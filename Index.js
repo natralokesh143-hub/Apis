@@ -1,53 +1,52 @@
-require("dotenv").config()
-var cors = require("cors")
+require("dotenv").config();
+var cors = require("cors");
+var express = require("express");
 
-var express = require("express")
-const connectToDatabase = require("./DataBase/db.js")
-var userRoutes = require("./Routes/UserRoutes.js")
-var productRoutes = require("./Routes/ProductRoutes.js")
-var profileRoutes = require("./Routes/profileRoutes.js")
-var cartRoutes = require("./Routes/cartRoutes.js")
-var paymentRoutes = require("./Routes/paymentRoutes.js")
-var orderRoutes = require("./Routes/orderRoutes.js")
+const connectToDatabase = require("./database/db.js");
+const { connectRedis } = require("./config/redisClient.js");
+const { createLimiters } = require("./MiddleWare/rateLimiter.js");
+
+// routes
+var useRoutes = require("./Routes/userRoutes");
+var productRoutes = require("./Routes/ProductRoutes.js");
+var profileRoutes = require("./Routes/profileRoutes.js");
+var cartRoutes = require("./Routes/cartRoutes.js");
+var paymentRoutes = require("./Routes/paymentRoutes.js");
+var orderRoutes = require("./Routes/orderRoutes.js");
 var wishlistRoutes = require("./Routes/wishlistRoutes.js")
 
+var app = express();
+
+app.use(cors());
+app.use(express.json());
 
 
-var app = express()
 
-app.use(cors())
-app.use(express.json())
-app.use(express.urlencoded({ extended: true }))
+const startServer = async () => {
+  //  1. Connect Redis FIRST
+  await connectRedis();
 
-app.get("/health", (req, res) => {
-    res.status(200).json({ ok: true })
-})
+  //  2. Create limiters AFTER Redis
+  const { productLimiter, adminLimiter } = createLimiters();
 
+  //  3. Apply limiters
+  app.use("/", productLimiter, productRoutes);
+  app.use("/", adminLimiter); // optional for admin
 
-app.use("/", userRoutes)
+  // routes
+  app.use("/", useRoutes);
+  app.use("/", profileRoutes);
+  app.use("/", cartRoutes);
+  app.use("/", paymentRoutes);
+  app.use("/", orderRoutes);
+  app.use("/", wishlistRoutes);
 
-app.use("/",productRoutes)
+  // DB
+  await connectToDatabase();
 
-app.use("/",profileRoutes)
+  app.listen(process.env.PORT, () => {
+    console.log("The server is running");
+  });
+};
 
-app.use("/",cartRoutes)
-
-app.use("/",wishlistRoutes)
-
-app.use("/",paymentRoutes)
-
-app.use("/",orderRoutes)
-
-
-var port = process.env.PORT || 5000
-
-connectToDatabase()
-    .then(() => {
-        app.listen(port, () => {
-            console.log("The server is running on port", port)
-        })
-    })
-    .catch((err) => {
-        console.error("Database connection failed:", err.message)
-        process.exit(1)
-    })
+startServer();

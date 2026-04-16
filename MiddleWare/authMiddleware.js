@@ -6,7 +6,11 @@ var authMiddleware = async(req,res,next)=>{
         if(!authHeader){
             return res.status(401).json({message : "no token found"})
         }
-        var token = authHeader.split(" ")[1]
+        var parts = authHeader.split(" ")
+        if (parts.length < 2 || !parts[1]) {
+            return res.status(401).json({ message: "use Authorization: Bearer <token>" })
+        }
+        var token = parts[1]
         var decode = jwt.verify(token,process.env.JWT_TOKEN)
         req.user = decode
         next()

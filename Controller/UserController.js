@@ -19,7 +19,7 @@ var registerUser = async(req,res)=>{
         }
         var userExists = await User.findOne({email})
         if(userExists){
-            return res.status(200).json({message : "user exists"})
+            return res.status(409).json({message : "user already exists"})
         }
         var hashPassword = await bcrypt.hash(password,10)
 
@@ -29,7 +29,15 @@ var registerUser = async(req,res)=>{
             password : hashPassword
 
         })
-        res.status(201).json({message : "account created",user : newUser})
+        res.status(201).json({
+            message : "account created",
+            user : {
+                _id: newUser._id,
+                name: newUser.name,
+                email: newUser.email,
+                role: newUser.role
+            }
+        })
 
         
 
@@ -54,11 +62,11 @@ var login = async(req,res)=>{
         
         var userExists = await User.findOne({email})
         if(!userExists){
-          return  res.status(200).json({message : "register "})
+          return res.status(401).json({ message: "invalid email or password" })
         }
         var checkPassword = await bcrypt.compare(password,userExists.password)
         if(!checkPassword){
-            return res.status(200).json({message : "incorrect password"})
+            return res.status(401).json({ message: "invalid email or password" })
             
         }
 
@@ -71,7 +79,7 @@ var login = async(req,res)=>{
     { expiresIn: "1d" }
     )
 
-    res.status(200).json({message :"login done",webToken : token})
+    res.status(200).json({ message: "login done", webToken: token, token: token })
 
         
     }catch(error){

@@ -1,7 +1,7 @@
 
 var User = require("../Model/UserModel")
 
-var bycrpt = require("bcrypt")
+var bcrypt = require("bcrypt")
 
 var getProfile = async(req,res)=>{
     try{
@@ -10,6 +10,9 @@ var getProfile = async(req,res)=>{
             return res.status(403).json({message : "no user found"})
         }
         var user = await User.findById(userId).select("-password")
+        if (!user) {
+            return res.status(404).json({ message: "user not found" })
+        }
         return res.status(200).json({user})
 
         
@@ -34,11 +37,14 @@ var updateProfile = async(req,res)=>{
             updatedUser.email = email
         }
         if(password){
-            var hashedPassword = await bycrpt.hash(password,10)
+            var hashedPassword = await bcrypt.hash(password,10)
             updatedUser.password = hashedPassword
         }
-        var updateUserdata = await User.findByIdAndUpdate(userId,updatedUser,{new : true})
-        return res.status(201).json({updateUserdata})
+        var updateUserdata = await User.findByIdAndUpdate(userId,updatedUser,{new : true}).select("-password")
+        if (!updateUserdata) {
+            return res.status(404).json({ message: "user not found" })
+        }
+        return res.status(200).json({ user: updateUserdata })
 
 
     }catch(error){

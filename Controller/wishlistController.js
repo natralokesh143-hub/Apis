@@ -1,5 +1,6 @@
 var User = require("../Model/UserModel")
 var Product = require("../Model/ProductModel")
+var mongoose = require("mongoose")
 
 var getWishlist = async (req, res) => {
     try {
@@ -9,7 +10,9 @@ var getWishlist = async (req, res) => {
             return res.status(404).json({ message: "user not found" })
         }
 
-        var wishlistIds = Array.isArray(user.wishlist) ? user.wishlist : []
+        var wishlistIds = normalizeWishlistIds(user.wishlist).filter(function (id) {
+            return mongoose.Types.ObjectId.isValid(id)
+        })
         var products = await Product.find({ _id: { $in: wishlistIds } })
 
         return res.status(200).json({
@@ -22,16 +25,27 @@ var getWishlist = async (req, res) => {
     }
 }
 
+function normalizeWishlistIds(wishlist) {
+    if (!Array.isArray(wishlist)) return []
+    return wishlist.map(function (id) {
+        return String(id)
+    })
+}
+
 var addToWishlist = async (req, res) => {
     try {
         var userId = req.user.userId
-        var { productId } = req.body || {}
+        var body = req.body || {}
+        var productId = body.productId || body.product_id
 
         if (!productId) {
             return res.status(400).json({
                 message: "productId is required",
                 example: { productId: "PRODUCT_ID_HERE" }
             })
+        }
+        if (!mongoose.Types.ObjectId.isValid(productId)) {
+            return res.status(400).json({ message: "invalid productId" })
         }
 
         var exists = await Product.findById(productId).select("_id")
@@ -44,9 +58,12 @@ var addToWishlist = async (req, res) => {
             return res.status(404).json({ message: "user not found" })
         }
 
-        if (!Array.isArray(user.wishlist)) user.wishlist = []
-        if (!user.wishlist.includes(String(productId))) {
-            user.wishlist.push(String(productId))
+        var ids = normalizeWishlistIds(user.wishlist)
+        var pid = String(productId)
+        if (!ids.some(function (id) {
+            return id === pid
+        })) {
+            user.wishlist = ids.concat([pid])
             await user.save()
         }
 
@@ -60,10 +77,17 @@ var addToWishlist = async (req, res) => {
 var removeFromWishlist = async (req, res) => {
     try {
         var userId = req.user.userId
-        var productId = req.params.productId
+        var body = req.body || {}
+        var productId = req.params.productId || body.productId || body.product_id || req.query.productId
 
         if (!productId) {
-            return res.status(400).json({ message: "productId is required" })
+            return res.status(400).json({
+                message: "productId is required",
+                hint: "Use DELETE /wishlist/:productId or DELETE /wishlist with JSON/query { productId }"
+            })
+        }
+        if (!mongoose.Types.ObjectId.isValid(productId)) {
+            return res.status(400).json({ message: "invalid productId" })
         }
 
         var user = await User.findById(userId)
@@ -71,8 +95,11 @@ var removeFromWishlist = async (req, res) => {
             return res.status(404).json({ message: "user not found" })
         }
 
-        if (!Array.isArray(user.wishlist)) user.wishlist = []
-        user.wishlist = user.wishlist.filter(id => String(id) !== String(productId))
+        var ids = normalizeWishlistIds(user.wishlist)
+        var pid = String(productId)
+        user.wishlist = ids.filter(function (id) {
+            return id !== pid
+        })
         await user.save()
 
         return res.status(200).json({ message: "removed from wishlist", wishlist: user.wishlist })

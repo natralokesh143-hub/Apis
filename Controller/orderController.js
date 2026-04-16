@@ -1,5 +1,6 @@
 
 var Order = require("../Model/orderModel")
+var mongoose = require("mongoose")
 
 
 var getAllOrders = async(req,res)=>{
@@ -25,6 +26,9 @@ var getSingleOrder = async(req,res)=>{
     try{
         var userId = req.user.userId
         var orderId = req.params.id 
+        if (!mongoose.Types.ObjectId.isValid(orderId)) {
+            return res.status(400).json({ message: "invalid order id" })
+        }
         var order = await Order.findOne({
             _id: orderId,
             userId: userId, 

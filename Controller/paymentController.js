@@ -96,7 +96,7 @@ var checkout = async (req, res) => {
     } catch (error) {
         console.log("FULL ERROR:", error)
 
-        res.status(500).json({
+        return res.status(500).json({
             error: error.message || "server error"
         })
     }

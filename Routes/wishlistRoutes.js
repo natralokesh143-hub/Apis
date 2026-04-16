@@ -7,6 +7,7 @@ var router = express.Router()
 router.get("/wishlist", authMiddleware, getWishlist)
 router.post("/wishlist", authMiddleware, addToWishlist)
 router.delete("/wishlist/:productId", authMiddleware, removeFromWishlist)
+router.delete("/wishlist", authMiddleware, removeFromWishlist)
 
 module.exports = router
 
